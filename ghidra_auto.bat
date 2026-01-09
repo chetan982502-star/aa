@@ -20,13 +20,7 @@ if not exist "%GHIDRA_HOME%" (
     pause
     exit /b 1
 )
-if not exist "%GHIDRA_HOME%\support\analyzeHeadless.bat" (
-    echo ERROR: analyzeHeadless.bat not found in: %GHIDRA_HOME%\support\
-    echo Please verify your Ghidra installation.
-    echo.
-    pause
-    exit /b 1
-)
+REM Skipping specific check - will try multiple locations later
 echo    FOUND: %GHIDRA_HOME%
 echo.
 
@@ -75,8 +69,23 @@ echo Project: %PROJECT_DIR%\%PROJECT_NAME%
 echo ========================================
 echo.
 
-cd /d "%GHIDRA_HOME%\support"
-call analyzeHeadless.bat "%PROJECT_DIR%" "%PROJECT_NAME%" -import "%TARGET_FILE%" -analyze
+REM Try different possible locations for analyzeHeadless
+if exist "%GHIDRA_HOME%\support\analyzeHeadless.bat" (
+    cd /d "%GHIDRA_HOME%\support"
+    call analyzeHeadless.bat "%PROJECT_DIR%" "%PROJECT_NAME%" -import "%TARGET_FILE%" -analyze
+) else if exist "%GHIDRA_HOME%\Ghidra\support\analyzeHeadless.bat" (
+    cd /d "%GHIDRA_HOME%\Ghidra\support"
+    call analyzeHeadless.bat "%PROJECT_DIR%" "%PROJECT_NAME%" -import "%TARGET_FILE%" -analyze
+) else (
+    echo ERROR: Could not find analyzeHeadless.bat
+    echo Searched in:
+    echo   - %GHIDRA_HOME%\support\analyzeHeadless.bat
+    echo   - %GHIDRA_HOME%\Ghidra\support\analyzeHeadless.bat
+    echo.
+    echo Please open %GHIDRA_HOME% and locate the support folder.
+    pause
+    exit /b 1
+)
 
 if errorlevel 1 (
     echo.

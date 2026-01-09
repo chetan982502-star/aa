@@ -18,13 +18,7 @@ if not exist "%GHIDRA_HOME%" (
     pause
     exit /b 1
 )
-if not exist "%GHIDRA_HOME%\ghidraRun.bat" (
-    echo ERROR: ghidraRun.bat not found in: %GHIDRA_HOME%
-    echo Please verify your Ghidra installation.
-    echo.
-    pause
-    exit /b 1
-)
+REM Skipping specific check - will try multiple locations later
 echo    FOUND: %GHIDRA_HOME%
 echo.
 
@@ -59,8 +53,27 @@ echo Starting Ghidra...
 echo ========================================
 echo.
 
-cd /d "%GHIDRA_HOME%"
-call ghidraRun.bat
+REM Try different possible locations for ghidraRun
+if exist "%GHIDRA_HOME%\ghidraRun.bat" (
+    cd /d "%GHIDRA_HOME%"
+    call ghidraRun.bat
+) else if exist "%GHIDRA_HOME%\Ghidra\ghidraRun.bat" (
+    cd /d "%GHIDRA_HOME%\Ghidra"
+    call ghidraRun.bat
+) else if exist "%GHIDRA_HOME%\ghidra.bat" (
+    cd /d "%GHIDRA_HOME%"
+    call ghidra.bat
+) else (
+    echo ERROR: Could not find ghidraRun.bat or ghidra.bat
+    echo Searched in:
+    echo   - %GHIDRA_HOME%\ghidraRun.bat
+    echo   - %GHIDRA_HOME%\Ghidra\ghidraRun.bat
+    echo   - %GHIDRA_HOME%\ghidra.bat
+    echo.
+    echo Please open %GHIDRA_HOME% and look for the Ghidra launch script.
+    pause
+    exit /b 1
+)
 
 echo.
 echo ========================================
